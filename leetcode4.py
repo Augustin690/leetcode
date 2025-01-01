@@ -1,7 +1,7 @@
 """Given two sorted arrays nums1 and nums2 of size m and n respectively, return the median of the two sorted arrays.
 
 The overall run time complexity should be O(log(m+n))."""
-
+from math import inf
 from typing import List
 
 
@@ -130,8 +130,6 @@ class Solution:
             n, m = m,n
 
         def solve(left, right):
-            partitionA = 0
-            partitionB = 0
             maxLeftA = 0
             minRightB = 0
 
@@ -142,20 +140,34 @@ class Solution:
                 # by construction, the smaller half partitionA + partitionB contains (m+n+1)/2 elements
                 # remember that the target value index depends on whether m+n is odd or even
                 # odd: find (m+m+1)/2 = (m + n) //2 + 1 th smallest element even: average (m+n)/2 and (m+n)/2 + 1 elements
-                maxLeftA = A[partitionA - 1]
-                minRightB = B[partitionB]
+                if partitionA < 1 :
+                    maxLeftA = float(-inf)
+                else:
+                    maxLeftA = A[partitionA - 1]
+                if partitionA >= n :
+                    minRightA = float(inf)
+                else:
+                    minRightA = A[partitionA]
+
+                if partitionB < 1 :
+                    maxLeftB = float(-inf)
+                else:
+                    maxLeftB = A[partitionA - 1]
+                if partitionB >= m :
+                    minRightB = float(inf)
+                else:
+                    minRightB = A[partitionA]
 
                 if maxLeftA > minRightB:
                     # maxLeftA is too large to be in the smaller half,  we should look for a smaller partition value of A
+                    #maxleftA should be in larger halff
                     right = partitionA - 1
-                else:
-                    # we should look for a larger partition value of A
+                elif maxLeftB > minRightA:
+                    # we are too far on the left side for partitionA, we should look for a larger partition value of A
+                    # minRightA should be in smaller half
                     left = partitionA + 1
-
-            minRightA = A[partitionA]
-            maxLeftB = B[partitionB - 1]
-
-            return maxLeftA, minRightA, maxLeftB, minRightB
+                else:
+                    return maxLeftA, minRightA, maxLeftB, minRightB
 
         maxLeftA, minRightA, maxLeftB, minRightB = solve(0, n)
         # odd case, we search for (m + n)//2 + 1 th element
