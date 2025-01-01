@@ -118,7 +118,8 @@ class Solution:
 
 
     # Better binary search: performing the binary search only on the smaller array of nums1 and nums2, thus the time complexity is reduced to O(log(min(m,n))).
-    # Time complexity: O(log(m + n)) Space complexity:
+    # Time complexity: O(log(m + n)) Space complexity: O(1)
+    # Runtime: 3ms, beats 54% Space: 17.95 MB, beats 20%
     @staticmethod
     def binSearch2( A: List[int], B: List[int]) -> float:
 
@@ -129,62 +130,50 @@ class Solution:
             A,B = B,A
             n, m = m,n
 
-        def solve(left, right):
-            maxLeftA = 0
-            minRightB = 0
+        left = 0
+        right = n
+        while left <= right:
 
-            while left < right:
+            partitionA = (left + right) //2
+            partitionB = (m+ n +1)//2 - partitionA
+            # by construction, the smaller half partitionA + partitionB contains (m+n+1)/2 elements
+            # remember that the target value index depends on whether m+n is odd or even
+            # odd: find (m+m+1)/2 = (m + n) //2 + 1 th smallest element even: average (m+n)/2 and (m+n)/2 + 1 elements
+            maxLeftA = (
+                float("-inf") if partitionA == 0 else A[partitionA - 1]
+            )
+            minRightA = float("inf") if partitionA == n else A[partitionA]
+            maxLeftB = (
+                float("-inf") if partitionB == 0 else B[partitionB - 1]
+            )
+            minRightB = float("inf") if partitionB == m else B[partitionB]
 
-                partitionA = (left + right) //2
-                partitionB = (m+ n)//2 - partitionA
-                # by construction, the smaller half partitionA + partitionB contains (m+n+1)/2 elements
-                # remember that the target value index depends on whether m+n is odd or even
-                # odd: find (m+m+1)/2 = (m + n) //2 + 1 th smallest element even: average (m+n)/2 and (m+n)/2 + 1 elements
-                if partitionA < 1 :
-                    maxLeftA = float(-inf)
+            if maxLeftA <= minRightB and maxLeftB <= minRightA:
+                # odd case, we search for (m + n)//2 + 1 th element
+                if (n+m) % 2:
+                    # median is the max value of the smaller half
+                    return max(maxLeftA, maxLeftB)
+                    # even case, average (m + n)/2 and  (m + n)/2 + 1 elements
                 else:
-                    maxLeftA = A[partitionA - 1]
-                if partitionA >= n :
-                    minRightA = float(inf)
-                else:
-                    minRightA = A[partitionA]
+                # average max value of smaller half and min value of larger half
+                    return (max(maxLeftA, maxLeftB) + min(minRightB, minRightA)) /2
 
-                if partitionB < 1 :
-                    maxLeftB = float(-inf)
-                else:
-                    maxLeftB = A[partitionA - 1]
-                if partitionB >= m :
-                    minRightB = float(inf)
-                else:
-                    minRightB = A[partitionA]
+            elif maxLeftA > minRightB:
+                # maxLeftA is too large to be in the smaller half,  we should look for a smaller partition value of A
+                #maxleftA should be in larger halff
+                right = partitionA - 1
 
-                if maxLeftA > minRightB:
-                    # maxLeftA is too large to be in the smaller half,  we should look for a smaller partition value of A
-                    #maxleftA should be in larger halff
-                    right = partitionA - 1
-                elif maxLeftB > minRightA:
-                    # we are too far on the left side for partitionA, we should look for a larger partition value of A
-                    # minRightA should be in smaller half
-                    left = partitionA + 1
-                else:
-                    return maxLeftA, minRightA, maxLeftB, minRightB
-
-        maxLeftA, minRightA, maxLeftB, minRightB = solve(0, n)
-        # odd case, we search for (m + n)//2 + 1 th element
-        if (n+m) % 2:
-            # median is the max value of the smaller half
-            return max(maxLeftA, maxLeftB)
-
-        # even case, average (m + n)/2 and  (m + n)/2 + 1 elements
-        else:
-            # average max value of smaller half and min value of larger half
-            return (max(maxLeftA, maxLeftB) + min(minRightB, minRightA)) /2
+             #maxLeftB > minRightA
+            else:
+                # we are too far on the left side for partitionA, we should look for a larger partition value of A
+                # minRightA should be in smaller half
+                left = partitionA + 1
 
 
 if __name__ == '__main__':
 
     nums1 = [1, 3, 4]
-    nums2 = [2, 5]
+    nums2 = [2, 5, 6]
 
     sol = Solution.binSearch2(nums1, nums2)
 
