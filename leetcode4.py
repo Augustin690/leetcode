@@ -130,26 +130,27 @@ class Solution:
             n, m = m,n
 
         def solve(left, right):
-            partitionA = (left + right) //2
-            partitionB = (m+ n + 1)/2 - partitionA
-            # by construction, the smaller half partitionA + partitionB contains (m+n+1)/2 elements
-            # remember that the target value index depends on whether m+n is odd or even
-            # odd: find (m+m+1)/2 = (m + n) //2 + 1 th smallest element even: average (m+n)/2 and (m+n)/2 + 1 elements
-            maxLeftA = A[partitionA - 1]
-            minRightB = B[partitionB]
+            partitionA = 0
+            partitionB = 0
+            maxLeftA = 0
+            minRightB = 0
 
             while left < right:
 
-                if maxLeftA > minRightB:
-                    # maxLeftA is too large to be in the smaller half,  we should look for a smaller partition value of A
-                    right = partitionA
-                else:
-                    left = partitionA
-
                 partitionA = (left + right) //2
-                partitionB = (m+ n + 1)/2 - partitionA
+                partitionB = (m+ n)//2 - partitionA
+                # by construction, the smaller half partitionA + partitionB contains (m+n+1)/2 elements
+                # remember that the target value index depends on whether m+n is odd or even
+                # odd: find (m+m+1)/2 = (m + n) //2 + 1 th smallest element even: average (m+n)/2 and (m+n)/2 + 1 elements
                 maxLeftA = A[partitionA - 1]
                 minRightB = B[partitionB]
+
+                if maxLeftA > minRightB:
+                    # maxLeftA is too large to be in the smaller half,  we should look for a smaller partition value of A
+                    right = partitionA - 1
+                else:
+                    # we should look for a larger partition value of A
+                    left = partitionA + 1
 
             minRightA = A[partitionA]
             maxLeftB = B[partitionB - 1]
@@ -170,9 +171,9 @@ class Solution:
 
 if __name__ == '__main__':
 
-    nums1 = [1, 3]
-    nums2 = [2]
+    nums1 = [1, 3, 4]
+    nums2 = [2, 5]
 
-    sol = Solution.findMedianSortedArrays(nums1, nums2)
+    sol = Solution.binSearch2(nums1, nums2)
 
     print(sol)
